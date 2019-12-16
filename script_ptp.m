@@ -17,7 +17,7 @@ disp('Default settings of importing set:')
 disp(['Length of set: ' num2str(length(FileName))])
 disp(['Length of A: ' num2str(height(A))])
 
-if (length(FileName) == height(A))
+if (length(FileName) ~= height(A))
     disp('Fixed settings of importing set:')
     A = readtable([group '_SN_lat.txt'],'ReadVariableNames',false);
     disp(['Length of set: ' num2str(length(FileName))])
