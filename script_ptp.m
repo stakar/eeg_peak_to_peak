@@ -24,62 +24,36 @@ if (length(FileName) ~= height(A))
     disp(['Length of A: ' num2str(height(A))])
 end
 
-for i = 1:length(FileName)
-    
-    nazwapliku=FileName{i};
-    % wczytaj EGI raw binary
-    ERP = pop_loaderp( 'filename', strcat(pathIn,nazwapliku));% GUI: 16-Sep-2019 10:42:48
-    for n = 0:3
-        bin = n+1+2;
-        for z = 0:1
-            column = ((n*2)+z)+1;
-            latency = A(i,column).Variables;
-            chan = z+1+4;
-            disp(chan)
-            disp(bin)
-            disp(latency)
-            if (latency == LowerTimeWindow)
-                lower = (latency-100);
-            else 
-                lower = LowerTimeWindow;
+conditions = ['lat';'amp'];
+
+for condition = 1:2
+    for i = 1:length(FileName)
+
+        nazwapliku=FileName{i};
+        % wczytaj EGI raw binary
+        ERP = pop_loaderp( 'filename', strcat(pathIn,nazwapliku));% GUI: 16-Sep-2019 10:42:48
+        for n = 0:3
+            bin = n+1+2;
+            for z = 0:1
+                column = ((n*2)+z)+1;
+                latency = A(i,column).Variables;
+                chan = z+1+4;
+                disp(chan)
+                disp(bin)
+                disp(latency)
+                if (latency == LowerTimeWindow)
+                    lower = (latency-100);
+                else 
+                    lower = LowerTimeWindow;
+                end
+                measurement = pop_geterpvalues(ERP,[lower latency],bin,chan,...
+                 'Baseline', [ -100 0], 'Binlabel', 'on', 'FileFormat', 'wide', 'Filename', 'test.txt',...
+                 'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'peakampbl', 'Neighborhood',  3,...
+                 'PeakOnset',  1, 'Peakpolarity', 'positive',...
+                 'Peakreplace', 'absolute', 'Resolution',  3, 'SendtoWorkspace', 'on' );
+                placeholder(i,column) = ERP_MEASURES;
             end
-            measurement = pop_geterpvalues(ERP,[lower latency],bin,chan,...
-             'Baseline', [ -100 0], 'Binlabel', 'on', 'FileFormat', 'wide', 'Filename', 'test.txt',...
-             'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'peakampbl', 'Neighborhood',  3,...
-             'PeakOnset',  1, 'Peakpolarity', 'positive',...
-             'Peakreplace', 'absolute', 'Resolution',  3, 'SendtoWorkspace', 'on' );
-            placeholder(i,column) = ERP_MEASURES;
         end
     end
+    WriteMatrix2Text(placeholder,[group '_SN_' conditions(condition,1:3) '_ptp.txt'])
 end
-WriteMatrix2Text(placeholder,[group '_SN_amp_ptp.txt'])
-
-
-for i = 1:length(FileName)
-    
-    nazwapliku=FileName{i};
-    % wczytaj EGI raw binary
-    ERP = pop_loaderp( 'filename', strcat(pathIn,nazwapliku));% GUI: 16-Sep-2019 10:42:48
-    for n = 0:3
-        bin = n+1+2;
-        for z = 0:1
-            column = ((n*2)+z)+1;
-            latency = A(i,column).Variables;
-            chan = z+1+4;
-            disp(chan)
-            disp(bin)
-            disp(latency)
-            if (latency == LowerTimeWindow)
-                lower = (latency-100);
-            else 
-                lower = LowerTimeWindow;
-            end
-            measurement = pop_geterpvalues(ERP,[lower latency],bin,chan,...
-             'Baseline', [ -100 0], 'Binlabel', 'on', 'FileFormat', 'wide', 'Filename', 'test.txt',...
-             'Fracreplace', 'NaN', 'InterpFactor',  1, 'Measure', 'peaklatbl', 'Neighborhood',  3, 'PeakOnset',  1, 'Peakpolarity', 'positive',...
-             'Peakreplace', 'absolute', 'Resolution',  3, 'SendtoWorkspace', 'on' );
-            placeholder(i,column) = ERP_MEASURES;
-        end
-    end
-end
-WriteMatrix2Text(placeholder,[group '_SN_lat_ptp.txt'])
